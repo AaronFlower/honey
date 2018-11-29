@@ -1,2 +1,2 @@
-# Honey Go
+# Honey
 A simple web MVC framework.
