@@ -17,8 +17,8 @@ type controllerInfo struct {
 
 // ControllerRegister contains all registered router rules.
 type ControllerRegister struct {
-	routes      []*controllerInfo
-	Application *App
+	routes []*controllerInfo
+	App    *App
 }
 
 // Add controller pattern rules and handler to ControllerRegister
@@ -49,13 +49,12 @@ func (cr *ControllerRegister) Add(pattern string, c ControllerInterface) {
 	if err != nil {
 		// @TODO add error handling here to avoid panic.
 		panic(err)
-		return
 	}
 
 	// create the Route
 	t := reflect.Indirect(reflect.ValueOf(c)).Type()
 	route := &controllerInfo{}
-	route.regex, route.params, controllerType = regex, params, t
+	route.regex, route.params, route.controllerType = regex, params, t
 
 	cr.routes = append(cr.routes, route)
 
@@ -66,7 +65,7 @@ func (cr *ControllerRegister) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	var started bool
 
 	// first check static path
-	for prefix, staticDir := range cr.app.StaticDirs {
+	for prefix, staticDir := range cr.App.StaticDirs {
 		if strings.HasPrefix(r.URL.Path, prefix) {
 			file := staticDir + r.URL.Path[len(prefix):]
 			http.ServeFile(w, r, file)
@@ -86,7 +85,7 @@ func (cr *ControllerRegister) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		// capture group parameters
 		// FindStringSubMatch returns an array, the first element is all matched string.
 		// 2nd is the 1th group, 3rd is the 2nd group...
-		matches := route.regex.FindStringSubMatch(path)
+		matches := route.regex.FindStringSubmatch(path)
 
 		// double check that the route matches the URL pattern.
 		if len(matches[0]) != len(path) {
@@ -112,12 +111,12 @@ func (cr *ControllerRegister) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		vc := reflect.New(route.controllerType)
 		init := vc.MethodByName("Init")
 		in := make([]reflect.Value, 2)
-		ct := &Context{ResponseWriter: w, Request: r, Params: params}
+		ct := &Context{ResponseWriter: w, Request: r}
 		in[0] = reflect.ValueOf(ct)
 		in[1] = reflect.ValueOf(route.controllerType.Name())
 		init.Call(in)
 
-		in = make([]refect.Value, 0)
+		in = make([]reflect.Value, 0)
 		method := vc.MethodByName("Prepare")
 		method.Call(in)
 
