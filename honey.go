@@ -33,7 +33,6 @@ type App struct {
 func init() {
 	MyApp = newApp(nil)
 	AppPath, _ = os.Getwd()
-	fmt.Println("Honey init:", AppPath)
 }
 
 func newApp(config *Config) *App {
@@ -54,7 +53,6 @@ func (app *App) Run() {
 	}
 
 	addr := fmt.Sprintf("%s:%d", app.config.HTTPAddr, app.config.HTTPPort)
-	fmt.Println("The addr is: ", addr, app.config)
 
 	var err error
 	for {
@@ -66,14 +64,10 @@ func (app *App) Run() {
 			}
 			err = fcgi.Serve(listener, app.Handlers)
 		} else {
-			fmt.Println("server")
 			err = httpListenAndServe(addr, app.Handlers, app.config)
-			fmt.Println("what is the error:", err)
 			if err != nil {
-				fmt.Println("HttpListenAndServe failed!")
 				os.Exit(1)
 			}
-			fmt.Println("The serve is listen at ", addr)
 		}
 
 		if err != nil {
@@ -101,7 +95,6 @@ func httpListenAndServe(addr string, handler http.Handler, config *Config) error
 		ReadTimeout:  readTimeout,
 		WriteTimeout: config.WriteTimeout,
 	}
-	fmt.Println("Server:", server)
 	return server.ListenAndServe()
 }
 
