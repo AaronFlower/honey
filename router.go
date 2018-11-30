@@ -1,6 +1,7 @@
 package honey
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -64,6 +65,8 @@ func (cr *ControllerRegister) Add(pattern string, c ControllerInterface) {
 func (cr *ControllerRegister) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var started bool
 
+	fmt.Printf("cr = %+v\n", cr)
+	fmt.Printf("cr.App = %+v\n", cr.App)
 	// first check static path
 	for prefix, staticDir := range cr.App.StaticDirs {
 		if strings.HasPrefix(r.URL.Path, prefix) {
@@ -73,6 +76,7 @@ func (cr *ControllerRegister) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 	}
+	fmt.Println("Server HTTP 2")
 
 	// find a matching Route
 	path := r.URL.Path

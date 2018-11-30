@@ -29,6 +29,7 @@ type ControllerInterface interface {
 	Patch()                      // method = Patch Handler
 	Options()                    // method = Options Handler
 	Render() error               // Render renders the page after method called.
+	Finish()
 }
 
 // Init context and child name.
@@ -83,4 +84,8 @@ func (c *Controller) Options() {
 // Render Handler
 func (c *Controller) Render() error {
 	return nil
+}
+
+// Finish handles some common operations.
+func (c *Controller) Finish() {
 }
