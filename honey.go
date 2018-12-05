@@ -8,6 +8,8 @@ import (
 	"net/http/fcgi"
 	"os"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 const (
@@ -25,6 +27,7 @@ var (
 // App defines web application.
 type App struct {
 	Handlers *ControllerRegister
+	Env      *viper.Viper
 	config   *Config
 	// StaticDirs stores all static files directories.
 	StaticDirs map[string]string
@@ -66,6 +69,7 @@ func (app *App) Run() {
 		} else {
 			err = httpListenAndServe(addr, app.Handlers, app.config)
 			if err != nil {
+				log.Print(err)
 				os.Exit(1)
 			}
 		}
@@ -99,7 +103,8 @@ func httpListenAndServe(addr string, handler http.Handler, config *Config) error
 }
 
 // Run starts the server
-func Run(config *Config) {
+func Run(env *viper.Viper, config *Config) {
+	MyApp.Env = env
 	MyApp.config = config
 	MyApp.Run()
 }
